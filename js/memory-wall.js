@@ -1,0 +1,82 @@
+// js/memory-wall.js
+async function fetchWallPosts() {
+  const { data, error } = await supabaseClient
+    .from('memory_wall_posts')
+    .select(`
+      id, content, created_at, user_id,
+      profiles (full_name),
+      wall_likes (user_id)
+    `)
+    .order('created_at', { ascending: false });
+    
+  if (error) {
+    console.error("Error Supabase (Memory Wall):", error.message);
+    throw error;
+  }
+  return data;
+}
+
+async function toggleLike(postId) {
+  const user = await getCurrentUser();
+  if (!user) {
+    if (typeof showToast === 'function') showToast('Login dulu untuk menyukai.', 'error');
+    return;
+  }
+
+  const { data: existing } = await supabaseClient
+    .from('wall_likes')
+    .select('id')
+    .eq('post_id', postId)
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  if (existing) {
+    await supabaseClient.from('wall_likes').delete().eq('id', existing.id);
+  } else {
+    await supabaseClient.from('wall_likes').insert({ post_id: postId, user_id: user.id });
+  }
+  
+  if (typeof renderMemoryWall === 'function') {
+    renderMemoryWall();
+  }
+}
+
+async function submitWallPost(content) {
+  const user = await getCurrentUser();
+  if (!user) throw new Error('Silakan login dulu untuk menulis cerita.');
+
+  const { data, error } = await supabaseClient
+    .from('memory_wall_posts')
+    .insert({
+      user_id: user.id,
+      content: content
+    })
+    .select()
+    .single();
+    
+  if (error) throw error;
+  return data;
+}
+
+// FUNGSI EDIT CERITA
+async function updateWallPost(id, content) {
+  const { data, error } = await supabaseClient
+    .from('memory_wall_posts')
+    .update({ content: content })
+    .eq('id', id)
+    .select()
+    .single();
+    
+  if (error) throw error;
+  return data;
+}
+
+// FUNGSI HAPUS CERITA
+async function deleteWallPost(id) {
+  const { error } = await supabaseClient
+    .from('memory_wall_posts')
+    .delete()
+    .eq('id', id);
+    
+  if (error) throw error;
+}
