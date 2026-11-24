@@ -1,0 +1,42 @@
+<!-- admin.html -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - Moderasi Foto</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: middle; }
+    th { background-color: #f2f2f2; }
+    img { max-width: 150px; max-height: 150px; object-fit: cover; }
+    .btn-approve { background-color: #4CAF50; color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 4px; }
+    .btn-approve:hover { background-color: #45a049; }
+    .status-review { color: orange; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <h1>Dasbor Moderasi Foto</h1>
+  <p>Daftar foto yang menunggu persetujuan admin.</p>
+
+  <table id="photoTable">
+    <thead>
+      <tr>
+        <th>Foto</th>
+        <th>Judul</th>
+        <th>Kategori</th>
+        <th>Status</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Baris foto akan dimasukkan ke sini oleh JavaScript -->
+    </tbody>
+  </table>
+
+  <!-- Panggil Supabase client dan script logika -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
