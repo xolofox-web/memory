@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memories of School — SMP IT. BCA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- CUSTOM CSS MINIMALIS & GRID TABEL KAKU -->
+  <style>
+    /* =========================================
+       GLOBAL RESET & TYPOGRAPHY (MINIMALIS)
+       ========================================= */
+    :root {
+      --bg-main: #ffffff;
+      --bg-soft: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --accent-color: #2563eb;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* =========================================
+       NAVBAR (STICKY & CLEAN)
+       ========================================= */
+    .nav {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      z-index: 1000;
+      padding: 16px 0;
+    }
+    
+    .nav-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-decoration: none;
+      margin: 0 16px;
+      transition: color 0.2s;
+    }
+    
+    .nav-links a:hover {
+      color: var(--text-main);
+    }
+
+    /* =========================================
+       1. KUNCI GRID TABEL (SANGAT KAKU & RAPI)
+       ========================================= */
+    .gallery-grid-rigid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+      gap: 32px !important; /* Jarak lebih lega */
+      grid-auto-rows: 440px !important; /* Tinggi baris dikunci mati */
+      align-items: stretch !important;
+    }
+
+    .gallery-card {
+      display: flex !important;
+      flex-direction: column !important;
+      height: 440px !important; /* Tinggi card dikunci mati */
+      background: #ffffff !important;
+      border-radius: 8px !important;
+      border: 1px solid var(--border-color) !important;
+      overflow: hidden !important;
+      margin: 0 !important;
+      transition: border-color 0.3s ease, transform 0.3s ease !important;
+      box-shadow: none !important; /* Menghilangkan bayangan agar flat/minimalis */
+    }
+
+    .gallery-card:hover {
+      border-color: #cbd5e1 !important;
+      transform: translateY(-2px) !important;
+    }
+
+    .gallery-media {
+      width: 100% !important;
+      height: 260px !important; /* Gambar dikunci */
+      flex-shrink: 0 !important;
+      position: relative !important;
+      overflow: hidden !important;
+      background: var(--bg-soft) !important;
+    }
+
+    .gallery-media img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      display: block !important;
+      transition: transform 0.5s ease !important;
+      cursor: pointer;
+    }
+
+    .gallery-card:hover .gallery-media img {
+      transform: scale(1.03) !important;
+    }
+
+    .gallery-info {
+      height: 180px !important; /* Sisa tinggi untuk teks */
+      padding: 20px 24px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+    }
+
+    .gallery-title {
+      display: -webkit-box !important;
+      -webkit-line-clamp: 2 !important;
+      -webkit-box-orient: vertical !important;
+      overflow: hidden !important;
+      margin-bottom: 8px !important;
+      font-size: 16px !important;
+      font-weight: 600 !important;
+      line-height: 1.4 !important;
+      color: var(--text-main);
+    }
+
+    .gallery-desc {
+      display: -webkit-box !important;
+      -webkit-line-clamp: 3 !important;
+      -webkit-box-orient: vertical !important;
+      overflow: hidden !important;
+      margin-bottom: 0 !important;
+      font-size: 14px !important;
+      color: var(--text-muted) !important;
+      line-height: 1.6 !important;
+    }
+
+    .gallery-date {
+      margin-bottom: 8px !important;
+      font-size: 12px !important;
+      font-weight: 500 !important;
+      color: #94a3b8 !important;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* =========================================
+       2. LAYOUT HOMEPAGE BARU (BERSIH)
+       ========================================= */
+    .hero {
+      padding: 100px 0 80px 0;
+      text-align: center;
+      background: var(--bg-main);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .section-new {
+      padding: 80px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .section-header-new {
+      margin-bottom: 40px;
+      text-align: left;
+    }
+    
+    .section-header-new h2 {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+    
+    .section-header-new p {
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    /* Tombol Minimalis */
+    .btn-primary {
+      background-color: var(--text-main);
+      color: white;
+      border-radius: 6px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-primary:hover {
+      background-color: #334155;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-outline:hover {
+      background-color: var(--bg-soft);
+    }
+
+    .load-more-container {
+      text-align: center !important;
+      margin-top: 48px !important;
+      width: 100% !important;
+    }
+
+    /* Lightbox */
+    .lightbox {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.95); display: flex; align-items: center; justify-content: center;
+      z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    .lightbox.active { opacity: 1; pointer-events: auto; }
+    .lightbox img { max-width: 90%; max-height: 90%; border-radius: 4px; }
+    .lightbox-close { position: absolute; top: 24px; right: 32px; color: white; font-size: 32px; cursor: pointer; background: none; border: none; }
+  </style>
+</head>
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<nav class="nav">
+  <div class="container nav-inner">
+    <a href="#" class="brand">
+      <i data-lucide="book-open" style="width: 20px;"></i>
+      <span>Memories.</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="#featured">Featured</a>
+      <a href="#angkatan">Angkatan</a>
+      <a href="#kelas">Kelas</a>
+      <a href="#kenangan">Kenangan</a>
+      <a href="#kegiatan">Kegiatan</a>
+    </div>
+    <div class="nav-actions">
+      <div class="auth-buttons" id="authButtons">
+        <button class="btn-outline" id="btnLogin" style="margin-right: 8px;">Masuk</button>
+        <button class="btn-primary" id="btnRegister">Daftar</button>
+      </div>
+      <div class="user-menu" id="userMenu" hidden>
+        <div class="user-chip" style="display: flex; align-items: center; gap: 8px;">
+          <div class="user-avatar" id="userAvatar" style="width: 32px; height: 32px; background: var(--border-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600;">A</div>
+          <span class="user-name" id="userName" style="font-size: 14px; font-weight: 500;">Nama</span>
+        </div>
+        <button class="btn-outline" id="btnLogout" style="margin-left: 16px; padding: 6px 12px;" onclick="return confirm('Keluar dari akun?')">
+          <i data-lucide="log-out" style="width: 16px;"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ================= 1. HERO SECTION ================= -->
+<header class="hero">
+  <div class="container">
+    <p style="font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;">
+      SMP IT. BCA · Angkatan 2023
+    </p>
+    <h1 style="font-size: 48px; font-weight: 700; color: var(--text-main); margin-bottom: 24px; letter-spacing: -1px;">
+      Every Moment Becomes a Memory
+    </h1>
+    <p style="font-size: 16px; color: var(--text-muted); max-width: 500px; margin: 0 auto 40px; line-height: 1.6;">
+      Arsip digital perjalanan masa SMP selama 3 tahun. Tempat cerita, tawa, dan persahabatan tetap hidup.
+    </p>
+    <div class="hero-actions" style="display: flex; gap: 12px; justify-content: center;">
+      <a href="#featured" class="btn-primary" style="text-decoration: none;">Jelajahi Kenangan</a>
+      <a href="#kenangan" class="btn-outline" style="text-decoration: none;">Bagikan Cerita</a>
+    </div>
+  </div>
+</header>
+
+<!-- ================= STATS (MINIMALIS) ================= -->
+<section class="stats reveal" style="padding: 40px 0; border-bottom: 1px solid var(--border-color);">
+  <div class="container">
+    <div class="stats-grid" style="display: flex; justify-content: space-between; text-align: left;">
+      <div class="stat"><div class="stat-value" id="statPhotos" style="font-size: 28px; font-weight: 600;">12</div><div class="stat-label" style="color:var(--text-muted); font-size: 13px; margin-top: 4px;">Foto Kenangan</div></div>
+      <div class="stat"><div class="stat-value" id="statWall" style="font-size: 28px; font-weight: 600;">0</div><div class="stat-label" style="color:var(--text-muted); font-size: 13px; margin-top: 4px;">Cerita Dibagikan</div></div>
+      <div class="stat"><div class="stat-value" style="font-size: 28px; font-weight: 600;">167</div><div class="stat-label" style="color:var(--text-muted); font-size: 13px; margin-top: 4px;">Anggota Angkatan</div></div>
+      <div class="stat"><div class="stat-value" style="font-size: 28px; font-weight: 600;">3</div><div class="stat-label" style="color:var(--text-muted); font-size: 13px; margin-top: 4px;">Tahun Bersama</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+
+  <!-- ================= 2. FEATURED MEMORIES ================= -->
+  <section class="section-new" id="featured">
+    <div class="section-header-new">
+      <h2>Featured Memories</h2>
+      <p>Foto pilihan yang paling menggambarkan kebersamaan kita.</p>
+    </div>
+    <div class="gallery-grid-rigid">
+      <article class="gallery-card">
+        <div class="gallery-media">
+          <img src="https://raw.githubusercontent.com/ZrooPro/SaveDat2/main/uploads/20261122_194249_668_9pwv7ybp.jpg" alt="Featured 1" onclick="openLightbox(this.src)">
+        </div>
+        <div class="gallery-info">
+          <h3 class="gallery-title">Foto Bersama Seluruh Siswa</h3>
+          <p class="gallery-desc">Momen kebersamaan seluruh siswa SMP IT. BCA di lapangan sekolah.</p>
+        </div>
+      </article>
+      <article class="gallery-card">
+        <div class="gallery-media">
+          <img src="https://raw.githubusercontent.com/ZrooPro/SaveDat2/main/uploads/20261124_134325_930_6yfvwbrp.jpg" alt="Featured 2" onclick="openLightbox(this.src)">
+        </div>
+        <div class="gallery-info">
+          <h3 class="gallery-title">Momen Kelulusan Angkatan 2023</h3>
+          <p class="gallery-desc">Hari terakhir berkumpul sebagai satu angkatan sebelum menempuh jalan masing-masing.</p>
+        </div>
+      </article>
+      <article class="gallery-card">
+        <div class="gallery-media">
+          <img src="https://raw.githubusercontent.com/ZrooPro/SaveDat1/main/uploads/20261124_134805_615_4kym65nd.jpg" alt="Featured 3" onclick="openLightbox(this.src)">
+        </div>
+        <div class="gallery-info">
+          <h3 class="gallery-title">Edukasi Pemadam Kebakaran</h3>
+          <p class="gallery-desc">Kunjungan edukatif bersama petugas pemadam kebakaran Kabupaten Bekasi.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= 3. ANGKATAN ================= -->
+  <section class="section-new" id="angkatan">
+    <div class="section-header-new">
+      <h2>01. Angkatan</h2>
+      <p>Dokumentasi seluruh angkatan dan foto bersama.</p>
+    </div>
+    <div class="gallery-grid-rigid">
+      <article class="gallery-card">
+        <div class="gallery-media">
+          <img src="https://raw.githubusercontent.com/ZrooPro/SaveDat2/main/uploads/20261125_161316_932_z1b9irbq.jpg" alt="Angkatan 1" onclick="openLightbox(this.src)">
+        </div>
+        <div class="gallery-info">
+          <div class="gallery-date">25 Nov 2026</div>
+          <h3 class="gallery-title">Foto Angkatan 2026</h3>
+          <p class="gallery-desc">Momen kebersamaan siswa-siswi SMP IT. BCA.</p>
+        </div>
+      </article>
+      <article class="gallery-card">
+        <div class="gallery-media">
+          <img src="https://raw.githubusercontent.com/ZrooPro/SaveDat2/main/uploads/20261125_161321_179_rw76cn85.jpg" alt="Angkatan 2" onclick="openLightbox(this.src)">
+        </div>
+        <div class="gallery-info">
+          <div class="gallery-date">25 Nov 2026</div>
+          <h3 class="gallery-title">Foto Angkatan 2026</h3>
+          <p class="gallery-desc">Momen kebersamaan siswa-siswi SMP IT. BCA.</p>
+        </div>
+      </article>
+      <article class="gallery-card">
+        <div class="gallery-media">
+          <img src="https://raw.githubusercontent.com/ZrooPro/SaveDat2/main/uploads/20261125_161326_405_0aq1sp3o.jpg" alt="Angkatan 3" onclick="openLightbox(this.src)">
+        </div>
+        <div class="gallery-info">
+          <div class="gallery-date">25 Nov 2026</div>
+          <h3 class="gallery-title">Foto Angkatan 2026</h3>
+          <p class="gallery-desc">Momen kebersamaan siswa-siswi SMP IT. BCA.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= 4. KELAS ================= -->
+  <section class="section-new" id="kelas">
+    <div class="section-header-new">
+      <h2>02. Kelas</h2>
+      <p>Galeri kebersamaan di dalam kelas.</p>
+    </div>
+    <div class="gallery-grid-rigid">
+      <article class="gallery-card">
+        <div class="gallery-media">
+          <img src="https://raw.githubusercontent.com/ZrooPro/SaveDat1/main/uploads/20261122_194830_069_2pvwnge6.jpg" alt="Kelas 1" onclick="openLightbox(this.src)">
+        </div>
+        <div class="gallery-info">
+          <div class="gallery-date">20 Nov 2023</div>
+          <h3 class="gallery-title">Seragam Kebanggaan</h3>
+          <p class="gallery-desc">Siswa-siswi dengan seragam kebanggaan berfoto bersama di depan gedung sekolah.</p>
+        </div>
+      </article>
+      <article class="gallery-card">
+        <div class="gallery-media">
+          <img src="https://raw.githubusercontent.com/ZrooPro/SaveDat2/main/uploads/20261122_194928_029_rj6th6h8.jpg" alt="Kelas 2" onclick="openLightbox(this.src)">
+        </div>
+        <div class="gallery-info">
+          <div class="gallery-date">10 Des 2023</div>
+          <h3 class="gallery-title">Keceriaan di Lapangan</h3>
+          <p class="gallery-desc">Tawa dan canda siswa-siswi dalam kegiatan sekolah yang penuh makna.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= 5. KENANGAN (Dengan Load More) ================= -->
+  <section class="section-new" id="kenangan">
+    <div class="section-header-new">
+      <h2>03. Kenangan</h2>
+      <p>Kumpulan momen kebersamaan, foto candid, dan aktivitas sehari-hari.</p>
+    </div>
+    <div class="gallery-grid-rigid" id="gridKenangan">
+      <article class="gallery-card">
+        <div class="gallery-media">
+          <img src="https://raw.githubusercontent.com/ZrooPro/SaveDat2/main/uploads/20261123_143435_668_530rtztv.jpg" alt="Kenangan 1" onclick="openLightbox(this.src)">
+        </div>
+        <div class="gallery-info">
+          <div class="gallery-date">2025</div>
+          <h3 class="gallery-title">Momen Study Tour</h3>
+          <p class="gallery-desc">Perjalanan yang mengubah banyak persahabatan. Foto-fotonya masih tersimpan rapi.</p>
+        </div>
+      </article>
+      <article class="gallery-card">
+        <div class="gallery-media">
+          <img src="https://raw.githubusercontent.com/ZrooPro/SaveDat2/main/uploads/20261123_152327_655_0gl3qft3.jpg" alt="Kenangan 2" onclick="openLightbox(this.src)">
+        </div>
+        <div class="gallery-info">
+          <div class="gallery-date">2025</div>
+          <h3 class="gallery-title">Kunjungan Edukatif</h3>
+          <p class="gallery-desc">Belajar sambil bermain bersama teman-teman.</p>
+        </div>
+      </article>
+      <article class="gallery-card">
+        <div class="gallery-media">
+          <img src="https://raw.githubusercontent.com/ZrooPro/SaveDat2/main/uploads/20261123_144903_228_e5pp1wfv.jpg" alt="Kenangan 3" onclick="openLightbox(this.src)">
+        </div>
+        <div class="gallery-info">
+          <div class="gallery-date">2025</div>
+          <h3 class="gallery-title">Dokumentasi Perjalanan</h3>
+          <p class="gallery-desc">Momen kebersamaan di luar sekolah.</p>
+        </div>
+      </article>
+    </div>
+    
+    <div class="load-more-container">
+      <button class="btn-outline" id="loadMoreBtn">
+        Lihat Kenangan Selanjutnya
+      </button>
+    </div>
+  </section>
+
+  <!-- ================= 6. KEGIATAN ================= -->
+  <section class="section-new" id="kegiatan">
+    <div class="section-header-new">
+      <h2>04. Kegiatan</h2>
+      <p>Dokumentasi class meeting, perlombaan, dan acara sekolah.</p>
+    </div>
+    <div class="gallery-grid-rigid">
+      <article class="gallery-card">
+        <div class="gallery-media">
+          <img src="https://raw.githubusercontent.com/ZrooPro/SaveDat1/main/uploads/20261122_194959_030_mirmowa0.jpg" alt="Kegiatan 1" onclick="openLightbox(this.src)">
+        </div>
+        <div class="gallery-info">
+          <div class="gallery-date">5 Nov 2025</div>
+          <h3 class="gallery-title">Foto Bersama Petugas Damkar</h3>
+          <p class="gallery-desc">Pengalaman seru belajar langsung dari para pahlawan pemadam kebakaran.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= 7. PERPISAHAN ================= -->
+  <section class="section-new" id="perpisahan">
+    <div class="section-header-new">
+      <h2>05. Perpisahan</h2>
+      <p>Foto kelulusan dan momen terakhir bersama.</p>
+    </div>
+    <div class="gallery-grid-rigid">
+      <article class="gallery-card">
+        <div class="gallery-media">
+          <img src="https://raw.githubusercontent.com/ZrooPro/SaveDat2/main/uploads/20261124_134325_930_6yfvwbrp.jpg" alt="Perpisahan 1" onclick="openLightbox(this.src)">
+        </div>
+        <div class="gallery-info">
+          <div class="gallery-date">12 Jun 2026</div>
+          <h3 class="gallery-title">Dokumentasi Wisuda</h3>
+          <p class="gallery-desc">Hari terakhir resmi jadi siswa SMP. Kita pulang dengan ijazah, tapi yang paling berharga adalah kenangan.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+</div> <!-- End Container -->
+
+<!-- ================= MEMORY WALL ================= -->
+<section class="section" id="wall" style="background: var(--bg-soft); padding: 80px 0; border-top: 1px solid var(--border-color);">
+  <div class="container">
+    <div class="section-header-new" style="text-align: center;">
+      <h2>Memory Wall</h2>
+      <p>Ceritamu, bagian dari kisah kita.</p>
+    </div>
+    <div class="wall" id="wallGrid"></div>
+  </div>
+</section>
+
+<footer class="footer" style="padding: 40px 0; text-align: center; background: #fff;">
+  <div class="container footer-inner" style="display: flex; justify-content: space-between; align-items: center;">
+    <div style="font-size: 14px; color: var(--text-muted);">© 2024 Memories of School · SMP IT. BCA</div>
+    <div class="footer-links" style="display: flex; gap: 24px;">
+      <a href="#featured" style="font-size: 14px; color: var(--text-muted); text-decoration: none;">Featured</a>
+      <a href="#angkatan" style="font-size: 14px; color: var(--text-muted); text-decoration: none;">Angkatan</a>
+      <a href="#wall" style="font-size: 14px; color: var(--text-muted); text-decoration: none;">Wall</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ================= MODALS (Auth, Upload, Wall) ================= -->
+<!-- (Kode Modal tidak diubah secara visual, hanya penyesuaian class tombol) -->
+<div class="modal" id="authModal" hidden>
+  <div class="modal-backdrop" data-close-modal></div>
+  <div class="modal-box">
+    <button class="modal-close" data-close-modal aria-label="Tutup"><i data-lucide="x"></i></button>
+    <div class="modal-tabs">
+      <button class="modal-tab active" data-tab="login">Masuk</button>
+      <button class="modal-tab" data-tab="register">Daftar</button>
+    </div>
+    <form class="auth-form" id="loginForm">
+      <div class="field"><label for="loginEmail">Email</label><input type="email" id="loginEmail" placeholder="email@contoh.com" required></div>
+      <div class="field"><label for="loginPassword">Password</label><input type="password" id="loginPassword" placeholder="Password" required></div>
+      <button type="submit" class="btn-primary" style="width: 100%;">Masuk</button>
+      <p class="auth-hint" style="text-align: center; margin-top: 16px;">Belum punya akun? <a href="#" data-switch="register">Daftar</a></p>
+    </form>
+    <form class="auth-form" id="registerForm" hidden>
+      <div class="field"><label for="regName">Nama Lengkap</label><input type="text" id="regName" placeholder="Nama lengkapmu..." required maxlength="60"></div>
+      <div class="field"><label for="regEmail">Email</label><input type="email" id="regEmail" placeholder="email@contoh.com" required></div>
+      <div class="field"><label for="regPassword">Password</label><input type="password" id="regPassword" placeholder="Minimal 6 karakter" required minlength="6"></div>
+      <div class="field">
+        <label for="regCode">Kode Angkatan</label>
+        <input type="text" id="regCode" placeholder="Masukkan kode rahasia" required autocomplete="off">
+      </div>
+      <button type="submit" class="btn-primary" style="width: 100%;">Daftar</button>
+      <p class="auth-hint" style="text-align: center; margin-top: 16px;">Sudah punya akun? <a href="#" data-switch="login">Masuk</a></p>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="uploadModal" hidden>
+  <div class="modal-backdrop" data-close-modal></div>
+  <div class="modal-box">
+    <button class="modal-close" data-close-modal aria-label="Tutup"><i data-lucide="x"></i></button>
+    <h3 class="modal-title" style="margin-bottom: 20px; font-weight: 600;">Tambah Foto Kenangan</h3>
+    <form id="uploadForm">
+      <div class="field"><label for="upFile">Pilih Foto</label><input type="file" id="upFile" accept="image/*" required><div class="upload-preview" id="upPreview" hidden><img alt="Preview"></div></div>
+      <div class="field"><label for="upTitle">Judul</label><input type="text" id="upTitle" maxlength="80" placeholder="Beri judul foto ini..." required></div>
+      <div class="field"><label for="upCategory">Kategori</label><select id="upCategory"><option value="kegiatan">Kegiatan</option><option value="kelas">Kelas</option><option value="wisuda">Wisuda</option></select></div>
+      <div class="field"><label for="upDesc">Deskripsi</label><textarea id="upDesc" maxlength="200" placeholder="Ceritakan sedikit tentang foto ini..." required></textarea></div>
+      <div class="field"><label for="upDate">Tanggal</label><input type="date" id="upDate" required></div>
+      <button type="submit" id="uploadBtn" class="btn-primary" style="width: 100%;">Unggah Foto</button>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="wallModal" hidden>
+  <div class="modal-backdrop" data-close-modal></div>
+  <div class="modal-box">
+    <button class="modal-close" data-close-modal aria-label="Tutup"><i data-lucide="x"></i></button>
+    <h3 class="modal-title" style="margin-bottom: 20px; font-weight: 600;" id="wallModalTitle">Bagikan Cerita</h3>
+    <form id="wallForm">
+      <input type="hidden" id="wallId" value="">
+      <div class="field">
+        <label for="wallContent">Cerita atau Pesan</label>
+        <textarea id="wallContent" placeholder="Tulis cerita atau pesan..." required minlength="5" maxlength="500" style="min-height: 120px;"></textarea>
+      </div>
+      <button type="submit" class="btn-primary" style="width: 100%;">Kirim Cerita</button>
+    </form>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" aria-label="Tutup">&times;</button>
+  <img id="lightboxImg" src="" alt="Zoomed Image">
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- SCRIPT LIGHTBOX & PAGINATION -->
+<script>
+  // Lightbox
+  function openLightbox(src) {
+    document.getElementById('lightboxImg').src = src;
+    document.getElementById('lightbox').classList.add('active');
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('active');
+  }
+
+  // Pagination Khusus Kenangan
+  document.addEventListener('DOMContentLoaded', () => {
+    const cards = document.querySelectorAll('#gridKenangan .gallery-card');
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    const itemsPerPage = 3; 
+    let currentlyVisible = itemsPerPage;
+
+    for (let i = itemsPerPage; i < cards.length; i++) {
+      cards[i].style.setProperty('display', 'none', 'important');
+    }
+
+    if (cards.length <= itemsPerPage) {
+      loadMoreBtn.style.setProperty('display', 'none', 'important');
+    }
+
+    loadMoreBtn.addEventListener('click', () => {
+      for (let i = currentlyVisible; i < currentlyVisible + itemsPerPage; i++) {
+        if (cards[i]) {
+          cards[i].style.setProperty('display', 'flex', 'important');
+        }
+      }
+      currentlyVisible += itemsPerPage;
+
+      if (currentlyVisible >= cards.length) {
+        loadMoreBtn.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  lucide.createIcons();
+</script>
+
+<!-- JS Modules -->
+<script src="js/supabase-config.js"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/gallery.js"></script>
+<script src="js/guestbook.js"></script>
+<script src="js/memory-wall.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
