@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memories of School — SMP IT. BCA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- CUSTOM CSS -->
+  <style>
+    /* =========================================
+       GLOBAL VARIABLES & DARK MODE
+       ========================================= */
+    :root {
+      --bg-body: #ffffff;
+      --bg-soft: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --card-bg: #ffffff;
+      --accent: #3b82f6;
+    }
+
+    body.dark-mode {
+      --bg-body: #0f172a;
+      --bg-soft: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --card-bg: #1e293b;
+    }
+
+    body { background-color: var(--bg-body) !important; color: var(--text-main) !important; transition: background 0.3s, color 0.3s; }
+
+    /* Kunci Grid Utama */
+    .gallery {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+      gap: 32px !important; 
+      grid-auto-rows: 440px !important; 
+      align-items: stretch !important;
+    }
+
+    .gallery-card {
+      display: flex !important; flex-direction: column !important; height: 440px !important; 
+      background: var(--card-bg) !important; border-radius: 12px !important; border: 1px solid var(--border-color) !important; 
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important; overflow: hidden !important; margin: 0 !important;
+      transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+    }
+
+    .gallery-card:hover { transform: translateY(-4px) !important; box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08) !important; }
+    .gallery-media { width: 100% !important; height: 240px !important; flex-shrink: 0 !important; position: relative !important; overflow: hidden !important; background: #f1f5f9 !important; }
+    .gallery-media img { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; transition: transform 0.5s ease !important; cursor: pointer; }
+    .gallery-card:hover .gallery-media img { transform: scale(1.03) !important; }
+    .gallery-info { height: 200px !important; padding: 20px 24px !important; display: flex !important; flex-direction: column !important; overflow: hidden !important; box-sizing: border-box !important; }
+    
+    .photo-category { font-size: 10px !important; font-weight: 600 !important; color: var(--accent) !important; text-transform: uppercase !important; letter-spacing: 1px !important; margin-bottom: 8px !important; }
+    .gallery-title { display: -webkit-box !important; -webkit-line-clamp: 2 !important; -webkit-box-orient: vertical !important; overflow: hidden !important; margin-bottom: 6px !important; font-size: 16px !important; font-weight: 600 !important; line-height: 1.4 !important; color: var(--text-main) !important; }
+    .gallery-meta { font-size: 12px !important; color: var(--text-muted) !important; margin-bottom: 10px !important; }
+    .gallery-desc { display: -webkit-box !important; -webkit-line-clamp: 2 !important; -webkit-box-orient: vertical !important; overflow: hidden !important; margin-bottom: 0 !important; font-size: 13px !important; color: var(--text-muted) !important; line-height: 1.5 !important; }
+    
+    .group-title { font-size: 20px; font-weight: 700; color: var(--text-main); margin-top: 48px; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); letter-spacing: -0.5px; }
+    .category-group { display: block; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .load-more-container { text-align: center !important; margin-top: 48px !important; width: 100% !important; }
+
+    /* UI: Background Hero */
+    .hero { background-color: var(--bg-soft) !important; background-image: radial-gradient(var(--border-color) 1px, transparent 1px); background-size: 24px 24px; position: relative; }
+    .hero::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, transparent 0%, var(--bg-body) 100%); z-index: 0; }
+    .hero .container { position: relative; z-index: 1; }
+
+    /* UI: Efek Hover Overlay */
+    .gallery-media::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.5) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3Cline x1='11' y1='8' x2='11' y2='14'%3E%3C/line%3E%3Cline x1='8' y1='11' x2='14' y2='11'%3E%3C/line%3E%3C/svg%3E") center no-repeat; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: 1; }
+    .gallery-card:hover .gallery-media::after { opacity: 1; }
+
+    /* UX: Grid HP */
+    @media (max-width: 480px) { .gallery { grid-template-columns: 1fr !important; gap: 20px !important; } }
+
+    /* UX: Scroll to Top */
+    #scrollTopBtn { position: fixed; bottom: 30px; right: 30px; width: 48px; height: 48px; background-color: #0f172a; color: white; border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; visibility: hidden; transition: all 0.3s ease; z-index: 999; }
+    #scrollTopBtn.show { opacity: 1; visibility: visible; }
+    #scrollTopBtn:hover { background-color: var(--accent); transform: translateY(-3px); }
+
+    /* =========================================
+       FITUR TAMBAHAN (MUSIC, COUNTDOWN, DLL)
+       ========================================= */
+    /* 1. Music Player */
+    #musicPlayer { position: fixed; bottom: 90px; right: 30px; z-index: 999; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 50px; padding: 8px 16px; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: pointer; transition: 0.3s; }
+    #musicPlayer:hover { transform: translateY(-2px); }
+    #musicIcon { animation: spin 3s linear infinite; animation-play-state: paused; }
+    #musicPlayer.playing #musicIcon { animation-play-state: running; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    /* 2. Countdown Reuni */
+    .countdown-box { display: flex; gap: 12px; justify-content: center; margin-top: 20px; }
+    .cd-item { background: var(--card-bg); border: 1px solid var(--border-color); padding: 10px 16px; border-radius: 8px; text-align: center; min-width: 70px; }
+    .cd-num { font-size: 24px; font-weight: 700; color: var(--text-main); }
+    .cd-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
+
+    /* 3. Memory of the Day */
+    .motd-section { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; margin: 40px 0; display: flex; gap: 24px; align-items: center; }
+    .motd-img { width: 200px; height: 140px; border-radius: 8px; object-fit: cover; }
+    .motd-content h3 { font-size: 20px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
+    .motd-content p { color: var(--text-muted); font-size: 14px; }
+
+    /* 4. Search Bar */
+    .search-wrapper { margin-bottom: 24px; position: relative; }
+    .search-wrapper input { width: 100%; padding: 14px 20px 14px 48px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 15px; }
+    .search-wrapper i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 20px; }
+
+    /* 5. Lightbox Comments & Download */
+    .lightbox-content { display: flex; gap: 24px; max-width: 90%; max-height: 90%; align-items: flex-start; }
+    .lightbox-img-wrap { position: relative; }
+    .lightbox-img-wrap img { max-width: 100%; max-height: 80vh; border-radius: 8px; }
+    .lightbox-sidebar { width: 300px; background: var(--card-bg); border-radius: 8px; padding: 20px; height: 80vh; display: flex; flex-direction: column; border: 1px solid var(--border-color); }
+    .lightbox-download { display: inline-block; margin-top: 16px; background: var(--accent); color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; text-align: center; }
+    
+    /* Video Gallery */
+    .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+    .video-card { background: var(--card-bg); border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); }
+    .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
+    .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+    /* Teacher Message */
+    .teacher-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 24px; }
+    .teacher-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 24px; border-radius: 12px; text-align: center; }
+    .teacher-img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin: 0 auto 16px; border: 3px solid var(--border-color); }
+  </style>
+</head>
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<nav class="nav" style="background: var(--bg-body) !important; border-bottom: 1px solid var(--border-color) !important;">
+  <div class="container nav-inner">
+    <a href="#" class="brand" style="color: var(--text-main) !important;">
+      <span class="brand-mark"><i data-lucide="book-open"></i></span>
+      <span>Memories of School</span>
+    </a>
+    <div class="nav-links" id="navLinks" style="color: var(--text-muted);">
+      <a href="#gallery">Gallery</a>
+      <a href="#videos">Videos</a>
+      <a href="#teachers">Guru</a>
+      <a href="#wall">Wall</a>
+      <a href="#guestbook">Guestbook</a>
+    </div>
+    <div class="nav-actions">
+      <!-- DARK MODE TOGGLE -->
+      <button class="btn btn-ghost" id="darkModeToggle" style="margin-right: 16px; color: var(--text-main);">
+        <i data-lucide="moon"></i>
+      </button>
+      
+      <div class="auth-buttons" id="authButtons">
+        <button class="btn btn-ghost" id="btnLogin" style="color: var(--text-main);">Masuk</button>
+        <button class="btn btn-primary" id="btnRegister"><i data-lucide="user-plus"></i> <span class="reg-text">Daftar</span></button>
+      </div>
+      <div class="user-menu" id="userMenu" hidden>
+        <div class="user-chip">
+          <div class="user-avatar" id="userAvatar">A</div>
+          <span class="user-name" id="userName">Nama</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="btnLogout" title="Keluar" onclick="return confirm('Keluar dari akun ini?')"><i data-lucide="log-out"></i></button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="container" style="text-align: center;">
+    <div class="hero-badge" style="background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); display: inline-flex;">
+      <i data-lucide="sparkles"></i> Angkatan 2023 · SMP IT. BCA
+    </div>
+    <h1 style="color: var(--text-main); font-size: 48px; font-weight: 800; margin: 20px 0;">Every Moment Becomes <em>a Memory</em></h1>
+    
+    <!-- 2. COUNTDOWN REUNI -->
+    <p style="color: var(--text-muted); margin-bottom: 10px;">Menuju Reuni Akbar Angkatan 2023</p>
+    <div class="countdown-box" id="countdown">
+      <div class="cd-item"><div class="cd-num" id="cd-days">00</div><div class="cd-label">Hari</div></div>
+      <div class="cd-item"><div class="cd-num" id="cd-hours">00</div><div class="cd-label">Jam</div></div>
+      <div class="cd-item"><div class="cd-num" id="cd-minutes">00</div><div class="cd-label">Menit</div></div>
+      <div class="cd-item"><div class="cd-num" id="cd-secs">00</div><div class="cd-label">Detik</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- 3. MEMORY OF THE DAY -->
+  <section class="motd-section">
+    <img src="" id="motdImage" class="motd-img" alt="Memory of the Day">
+    <div class="motd-content">
+      <span style="font-size: 11px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 1px;">✨ Kenangan Hari Ini</span>
+      <h3 id="motdTitle" style="margin-top: 8px;">Memuat kenangan...</h3>
+      <p id="motdDesc">Terkadang satu foto bisa mengingatkan kita pada sejuta cerita.</p>
+    </div>
+  </section>
+
+  <!-- ================= GALLERY ================= -->
+  <section class="section" id="gallery">
+    <div class="section-header">
+      <div>
+        <div class="eyebrow">Memory Gallery</div>
+        <h2 class="section-title" style="color: var(--text-main);">Sekumpulan momen yang tak ingin dilupakan</h2>
+      </div>
+    </div>
+
+    <!-- 4. SEARCH BAR -->
+    <div class="search-wrapper">
+      <i data-lucide="search"></i>
+      <input type="text" id="searchInput" placeholder="Cari kenangan (contoh: Damkar, Wisuda, November)...">
+    </div>
+
+    <div class="filters">
+      <button class="filter active" data-filter="all">Semua Foto</button>
+      <button class="filter" data-filter="angkatan">Foto Angkatan</button>
+      <button class="filter" data-filter="kegiatan">Kegiatan Khusus</button>
+      <button class="filter" data-filter="kebersamaan">Kebersamaan</button>
+      <button class="filter" data-filter="kelas">Dokumentasi Kelas</button>
+    </div>
+
+    <div class="category-group" data-cat="angkatan">
+      <h3 class="group-title">Foto Angkatan</h3>
+      <div class="gallery" id="galleryGridAngkatan">
+        
+        <article class="gallery-card reveal" data-cat="angkatan">
+          <div class="gallery-media"><img src="https://raw.githubusercontent.com/ZrooPro/SaveDat2/main/uploads/20261125_161316_932_z1b9irbq.jpg" alt="Foto Angkatan" loading="lazy" onclick="openLightbox(this.src, 'Foto Angkatan - 25 November 2026')"></div>
+          <div class="gallery-info"><div class="photo-category">Foto Angkatan</div><h3 class="gallery-title">Foto Angkatan - 25 November 2026</h3><div class="gallery-meta">Kegiatan: Foto Bersama</div><p class="gallery-desc">Momen kebersamaan siswa-siswi SMP IT. BCA.</p></div>
+        </article>
+
+        <article class="gallery-card reveal" data-cat="angkatan">
+          <div class="gallery-media"><img src="https://raw.githubusercontent.com/ZrooPro/SaveDat2/main/uploads/20261125_161321_179_rw76cn85.jpg" alt="Foto Angkatan" loading="lazy" onclick="openLightbox(this.src, 'Foto Angkatan - 25 November 2026')"></div>
+          <div class="gallery-info"><div class="photo-category">Foto Angkatan</div><h3 class="gallery-title">Foto Angkatan - 25 November 2026</h3><div class="gallery-meta">Kegiatan: Foto Bersama</div><p class="gallery-desc">Momen kebersamaan siswa-siswi SMP IT. BCA.</p></div>
+        </article>
+
+        <article class="gallery-card reveal" data-cat="angkatan">
+          <div class="gallery-media"><img src="https://raw.githubusercontent.com/ZrooPro/SaveDat2/main/uploads/20261125_161326_405_0aq1sp3o.jpg" alt="Foto Angkatan" loading="lazy" onclick="openLightbox(this.src, 'Foto Angkatan - 25 November 2026')"></div>
+          <div class="gallery-info"><div class="photo-category">Foto Angkatan</div><h3 class="gallery-title">Foto Angkatan - 25 November 2026</h3><div class="gallery-meta">Kegiatan: Foto Bersama</div><p class="gallery-desc">Momen kebersamaan siswa-siswi SMP IT. BCA.</p></div>
+        </article>
+
+        <article class="gallery-card reveal" data-cat="angkatan">
+          <div class="gallery-media"><img src="https://raw.githubusercontent.com/ZrooPro/SaveDat2/main/uploads/20261125_161331_958_b3hledem.jpg" alt="Foto Angkatan" loading="lazy" onclick="openLightbox(this.src, 'Foto Angkatan - 25 November 2026')"></div>
+          <div class="gallery-info"><div class="photo-category">Foto Angkatan</div><h3 class="gallery-title">Foto Angkatan - 25 November 2026</h3><div class="gallery-meta">Kegiatan: Foto Bersama</div><p class="gallery-desc">Momen kebersamaan siswa-siswi SMP IT. BCA.</p></div>
+        </article>
+
+        <article class="gallery-card reveal" data-cat="angkatan">
+          <div class="gallery-media"><img src="https://raw.githubusercontent.com/ZrooPro/SaveDat2/main/uploads/20261125_161337_397_97i0oxuw.jpg" alt="Foto Angkatan" loading="lazy" onclick="openLightbox(this.src, 'Foto Angkatan - 25 November 2026')"></div>
+          <div class="gallery-info"><div class="photo-category">Foto Angkatan</div><h3 class="gallery-title">Foto Angkatan - 25 November 2026</h3><div class="gallery-meta">Kegiatan: Foto Bersama</div><p class="gallery-desc">Momen kebersamaan siswa-siswi SMP IT. BCA.</p></div>
+        </article>
+
+        <article class="gallery-card reveal" data-cat="angkatan">
+          <div class="gallery-media"><img src="https://raw.githubusercontent.com/ZrooPro/SaveDat2/main/uploads/20261125_161342_842_9tv0123o.jpg" alt="Foto Angkatan" loading="lazy" onclick="openLightbox(this.src, 'Foto Angkatan - 25 November 2026')"></div>
+          <div class="gallery-info"><div class="photo-category">Foto Angkatan</div><h3 class="gallery-title">Foto Angkatan - 25 November 2026</h3><div class="gallery-meta">Kegiatan: Foto Bersama</div><p class="gallery-desc">Momen kebersamaan siswa-siswi SMP IT. BCA.</p></div>
+        </article>
+
+        <article class="gallery-card reveal" data-cat="angkatan">
+          <div class="gallery-media"><img src="https://raw.githubusercontent.com/ZrooPro/SaveDat2/main/uploads/20261122_194249_668_9pwv7ybp.jpg" alt="Foto Bersama Siswa" loading="lazy" onclick="openLightbox(this.src, 'Foto Bersama Seluruh Siswa - 15 Oktober 2026')"></div>
+          <div class="gallery-info"><div class="photo-category">Foto Angkatan</div><h3 class="gallery-title">Foto Bersama Seluruh Siswa - 15 Oktober 2026</h3><div class="gallery-meta">Kegiatan: Foto Bersama</div><p class="gallery-desc">Momen kebersamaan seluruh siswa SMP IT. BCA di lapangan sekolah.</p></div>
+        </article>
+      </div>
+    </div>
+
+    <div class="category-group" data-cat="kegiatan">
+      <h3 class="group-title">Kegiatan Khusus</h3>
+      <div class="gallery" id="galleryGridKegiatan">
+        
+        <article class="gallery-card reveal" data-cat="kegiatan">
+          <div class="gallery-media"><img src="https://raw.githubusercontent.com/ZrooPro/SaveDat1/main/uploads/20261124_134805_615_4kym65nd.jpg" alt="Edukasi Damkar" loading="lazy" onclick="openLightbox(this.src, 'Kunjungan Damkar - 5 November 2026')"></div>
+          <div class="gallery-info"><div class="photo-category">Kegiatan Khusus</div><h3 class="gallery-title">Kunjungan Damkar - 5 November 2026</h3><div class="gallery-meta">Kegiatan: Edukasi Damkar</div><p class="gallery-desc">Kunjungan edukatif bersama petugas pemadam kebakaran Kabupaten Bekasi.</p></div>
+        </article>
+
+        <article class="gallery-card reveal" data-cat="kegiatan">
+          <div class="gallery-media"><img src="https://raw.githubusercontent.com/ZrooPro/SaveDat1/main/uploads/20261122_194959_030_mirmowa0.jpg" alt="Foto Bersama Mobil Damkar" loading="lazy" onclick="openLightbox(this.src, 'Kunjungan Damkar - 5 November 2026')"></div>
+          <div class="gallery-info"><div class="photo-category">Kegiatan Khusus</div><h3 class="gallery-title">Kunjungan Damkar - 5 November 2026</h3><div class="gallery-meta">Kegiatan: Edukasi Damkar</div><p class="gallery-desc">Pengalaman seru belajar langsung dari para pahlawan pemadam kebakaran.</p></div>
+        </article>
+
+        <article class="gallery-card reveal" data-cat="kegiatan">
+          <div class="gallery-media"><img src="https://raw.githubusercontent.com/ZrooPro/SaveDat2/main/uploads/20261124_134325_930_6yfvwbrp.jpg" alt="Foto Kelulusan" loading="lazy" onclick="openLightbox(this.src, 'Momen Kelulusan - 12 Juni 2026')"></div>
+          <div class="gallery-info"><div class="photo-category">Kegiatan Khusus</div><h3 class="gallery-title">Momen Kelulusan - 12 Juni 2026</h3><div class="gallery-meta">Kegiatan: Wisuda</div><p class="gallery-desc">Hari terakhir berkumpul sebagai satu angkatan sebelum menempuh jalan masing-masing.</p></div>
+        </article>
+      </div>
+    </div>
+
+    <div class="category-group" data-cat="kebersamaan">
+      <h3 class="group-title">Kebersamaan</h3>
+      <div class="gallery" id="galleryGridKebersamaan">
+        
+        <article class="gallery-card reveal" data-cat="kebersamaan">
+          <div class="gallery-media"><img src="https://raw.githubusercontent.com/ZrooPro/SaveDat2/main/uploads/20261122_194928_029_rj6th6h8.jpg" alt="Kegiatan Siswa" loading="lazy" onclick="openLightbox(this.src, 'Keceriaan di Lapangan - 10 Desember 2026')"></div>
+          <div class="gallery-info"><div class="photo-category">Kebersamaan</div><h3 class="gallery-title">Keceriaan di Lapangan - 10 Desember 2026</h3><div class="gallery-meta">Kegiatan: Momen Santai</div><p class="gallery-desc">Tawa dan canda siswa-siswi dalam kegiatan sekolah yang penuh makna.</p></div>
+        </article>
+      </div>
+    </div>
+
+    <div class="category-group" data-cat="kelas">
+      <h3 class="group-title">Dokumentasi Kelas</h3>
+      <div class="gallery" id="galleryGridKelas">
+        
+        <article class="gallery-card reveal" data-cat="kelas">
+          <div class="gallery-media"><img src="https://raw.githubusercontent.com/ZrooPro/SaveDat1/main/uploads/20261122_194830_069_2pvwnge6.jpg" alt="Suasana Kelas" loading="lazy" onclick="openLightbox(this.src, 'Seragam Kebanggaan - 20 November 2026')"></div>
+          <div class="gallery-info"><div class="photo-category">Dokumentasi Kelas</div><h3 class="gallery-title">Seragam Kebanggaan - 20 November 2026</h3><div class="gallery-meta">Kegiatan: Dokumentasi Kelas</div><p class="gallery-desc">Siswa-siswi dengan seragam kebanggaan berfoto bersama di depan gedung sekolah.</p></div>
+        </article>
+      </div>
+    </div>
+
+    <div class="load-more-container">
+      <button class="btn btn-primary" id="loadMoreBtn" style="padding: 12px 24px; font-size: 15px;">
+        <i data-lucide="chevron-down"></i> Lihat Foto Selanjutnya
+      </button>
+    </div>
+
+  </section>
+
+  <!-- 5. VIDEO GALLERY -->
+  <section class="section" id="videos" style="padding: 60px 0; border-top: 1px solid var(--border-color);">
+    <div class="section-header">
+      <div>
+        <div class="eyebrow">Video Kenangan</div>
+        <h2 class="section-title" style="color: var(--text-main);">Cerita dalam Gerak</h2>
+      </div>
+    </div>
+    <div class="video-grid">
+      <!-- Ganti ID Video YouTube di bawah ini -->
+      <div class="video-card">
+        <div class="video-container">
+          <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?mute=1" title="Video Kenangan" allowfullscreen></iframe>
+        </div>
+        <div style="padding: 16px;">
+          <h3 style="font-size: 16px; color: var(--text-main); font-weight: 600;">Aftermovie Study Tour 2026</h3>
+        </div>
+      </div>
+      <div class="video-card">
+        <div class="video-container">
+          <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?mute=1" title="Video Kenangan" allowfullscreen></iframe>
+        </div>
+        <div style="padding: 16px;">
+          <h3 style="font-size: 16px; color: var(--text-main); font-weight: 600;">Drama Kelas 9 - Perpisahan</h3>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. TEACHER'S MESSAGE -->
+  <section class="section" id="teachers" style="padding: 60px 0; border-top: 1px solid var(--border-color);">
+    <div class="section-header center">
+      <div class="eyebrow">Pesan Guru</div>
+      <h2 class="section-title" style="color: var(--text-main);">Kata Mereka untuk Kita</h2>
+    </div>
+    <div class="teacher-grid">
+      <!-- Ganti dengan foto dan pesan guru asli -->
+      <div class="teacher-card">
+        <img src="https://raw.githubusercontent.com/ZrooPro/SaveDat2/main/uploads/20261122_194249_668_9pwv7ybp.jpg" class="teacher-img" alt="Guru">
+        <h3 style="font-size: 16px; font-weight: 700; color: var(--text-main);">Bpk. Ahmad, S.Pd.</h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Wali Kelas 9A</p>
+        <p style="font-size: 14px; color: var(--text-muted); font-style: italic;">"Teruslah belajar dan raih cita-citamu. Jangan lupakan kebersamaan kalian di sini."</p>
+      </div>
+      <div class="teacher-card">
+        <img src="https://raw.githubusercontent.com/ZrooPro/SaveDat2/main/uploads/20261122_194249_668_9pwv7ybp.jpg" class="teacher-img" alt="Guru">
+        <h3 style="font-size: 16px; font-weight: 700; color: var(--text-main);">Ibu Siti, M.Pd.</h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Guru Matematika</p>
+        <p style="font-size: 14px; color: var(--text-muted); font-style: italic;">"Kalian adalah murid yang luar biasa. Sukses selalu untuk angkatan 2023!"</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MEMORY WALL ================= -->
+  <section class="section" id="wall" style="padding: 60px 0; border-top: 1px solid var(--border-color);">
+    <div class="section-header">
+      <div>
+        <div class="eyebrow">Memory Wall</div>
+        <h2 class="section-title" style="color: var(--text-main);">Ceritamu, bagian dari kisah kita.</h2>
+      </div>
+      <div class="header-right">
+        <button class="btn btn-primary" id="btnAddWall" hidden><i data-lucide="pen-line"></i> Tulis Cerita</button>
+      </div>
+    </div>
+    <div class="wall" id="wallGrid"></div>
+  </section>
+
+  <!-- ================= GUESTBOOK ================= -->
+  <section class="section" id="guestbook" style="padding: 60px 0; border-top: 1px solid var(--border-color);">
+    <div class="section-header center">
+      <div class="eyebrow">Guestbook</div>
+      <h2 class="section-title" style="color: var(--text-main);">Tinggalkan jejakmu di sini</h2>
+    </div>
+    <div class="guestbook-wrap">
+      <form class="gb-form" id="gbForm">
+        <div class="field"><label for="gbName" style="color: var(--text-main);">Nama</label><input type="text" id="gbName" placeholder="Nama lengkap" required></div>
+        <div class="field"><label for="gbEmail" style="color: var(--text-main);">Email</label><input type="email" id="gbEmail" placeholder="email@contoh.com" required></div>
+        <div class="field"><label for="gbMessage" style="color: var(--text-main);">Pesan</label><textarea id="gbMessage" placeholder="Tulis pesan atau kenanganmu..." required></textarea></div>
+        <button type="submit" class="btn btn-primary"><i data-lucide="send"></i> Kirim Pesan</button>
+      </form>
+      <div class="gb-list" id="gbList"></div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer" style="border-top: 1px solid var(--border-color); padding: 40px 0;">
+  <div class="container footer-inner" style="display: flex; justify-content: space-between; color: var(--text-muted); font-size: 14px;">
+    <div>© 2024 Memories of School · SMP IT. BCA</div>
+    <div class="footer-links">
+      <a href="#gallery" style="color: var(--text-muted); margin-left: 16px;">Gallery</a>
+      <a href="#videos" style="color: var(--text-muted); margin-left: 16px;">Videos</a>
+      <a href="#wall" style="color: var(--text-muted); margin-left: 16px;">Wall</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ================= MODALS (AUTH, UPLOAD, WALL) ================= -->
+<div class="modal" id="authModal" hidden>...</div>
+<div class="modal" id="uploadModal" hidden>...</div>
+<div class="modal" id="wallModal" hidden>...</div>
+
+<!-- LIGHTBOX DENGAN FITUR KOMENTAR & DOWNLOAD -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lightbox-close" onclick="closeLightbox(event)">&times;</button>
+  
+  <div class="lightbox-content" onclick="event.stopPropagation()">
+    <!-- Area Gambar -->
+    <div class="lightbox-img-wrap">
+      <img id="lightboxImg" src="" alt="Zoomed Image">
+      <!-- 3. DOWNLOAD FOTO -->
+      <a id="downloadBtn" href="" download class="lightbox-download" target="_blank">Download Foto Asli</a>
+    </div>
+    
+    <!-- Sidebar Komentar & Tag (Tampilan UI) -->
+    <div class="lightbox-sidebar">
+      <h3 style="font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 16px;">Komentar & Tag</h3>
+      <div id="lightboxComments" style="flex-grow: 1; overflow-y: auto; margin-bottom: 16px; font-size: 14px; color: var(--text-muted);">
+        <!-- Komentar akan muncul di sini -->
+        <p style="text-align: center; margin-top: 20px;">Belum ada komentar di foto ini.</p>
+      </div>
+      
+      <!-- Input Komentar -->
+      <div style="display: flex; gap: 8px;">
+        <input type="text" id="commentInput" placeholder="Tulis komentar..." style="flex-grow: 1; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-soft); color: var(--text-main);">
+        <button onclick="tambahKomentar()" class="btn btn-primary" style="padding: 8px 12px;"><i data-lucide="send" style="width: 16px;"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOMBOL SCROLL TO TOP & MUSIC PLAYER -->
+<button id="scrollTopBtn" title="Kembali ke atas"><i data-lucide="chevron-up"></i></button>
+
+<div id="musicPlayer" onclick="toggleMusic()">
+  <i data-lucide="music" id="musicIcon" style="color: var(--accent); width: 20px;"></i>
+  <span style="font-size: 13px; font-weight: 600; color: var(--text-main);">Lagu Kenangan</span>
+</div>
+<audio id="bgAudio" loop>
+  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+</audio>
+
+<!-- ================= TOAST ================= -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- SCRIPT LIGHTBOX, FITUR TAMBAHAN & DARK MODE -->
+<script>
+  // --- 1. LIGHTBOX & DOWNLOAD ---
+  function openLightbox(src, title) {
+    const lightbox = document.getElementById('lightbox');
+    const img = document.getElementById('lightboxImg');
+    const dlBtn = document.getElementById('downloadBtn');
+    
+    img.src = src;
+    dlBtn.href = src;
+    dlBtn.download = title ? title.replace(/\s+/g, '-').toLowerCase() + '.jpg' : 'foto-kenangan.jpg';
+    
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Cegah scroll background
+  }
+
+  function closeLightbox(e) {
+    if(e) e.stopPropagation();
+    document.getElementById('lightbox').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  function tambahKomentar() {
+    const input = document.getElementById('commentInput');
+    if(input.value.trim() === '') return;
+    
+    const commentsDiv = document.getElementById('lightboxComments');
+    if(commentsDiv.innerHTML.includes('Belum ada komentar')) {
+      commentsDiv.innerHTML = '';
+    }
+    
+    // Simulasi UI (Belum tersimpan ke DB)
+    commentsDiv.innerHTML += `
+      <div style="background: var(--bg-soft); padding: 10px; border-radius: 8px; margin-bottom: 8px;">
+        <div style="font-weight: 600; font-size: 12px; color: var(--text-main);">Kamu (Baru saja)</div>
+        <div style="color: var(--text-main);">${input.value}</div>
+      </div>
+    `;
+    input.value = '';
+    commentsDiv.scrollTop = commentsDiv.scrollHeight;
+  }
+
+  // --- 2. DARK MODE ---
+  const darkModeToggle = document.getElementById('darkModeToggle');
+  const darkIcon = darkModeToggle.querySelector('i');
+  
+  // Cek memori penyimpanan
+  if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark-mode');
+    darkIcon.setAttribute('data-lucide', 'sun');
+  }
+
+  darkModeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    
+    // Ganti ikon
+    darkIcon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+    lucide.createIcons();
+    
+    // Simpan ke memori
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  });
+
+  // --- 3. MUSIC PLAYER ---
+  const bgAudio = document.getElementById('bgAudio');
+  const musicPlayer = document.getElementById('musicPlayer');
+  let isPlaying = false;
+
+  function toggleMusic() {
+    if (isPlaying) {
+      bgAudio.pause();
+      musicPlayer.classList.remove('playing');
+    } else {
+      bgAudio.play();
+      musicPlayer.classList.add('playing');
+    }
+    isPlaying = !isPlaying;
+  }
+
+  // --- 4. COUNTDOWN REUNI (Target: 1 Tahun dari sekarang) ---
+  const targetDate = new Date();
+  targetDate.setFullYear(targetDate.getFullYear() + 1); // Ubah tanggal ini sesuai kebutuhan
+
+  function updateCountdown() {
+    const now = new Date().getTime();
+    const distance = targetDate.getTime() - now;
+
+    if (distance < 0) {
+      document.getElementById('countdown').innerHTML = "<h3 style='color:var(--text-main);'>Reuni Telah Tiba!</h3>";
+      return;
+    }
+
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    document.getElementById('cd-days').innerText = days;
+    document.getElementById('cd-hours').innerText = hours;
+    document.getElementById('cd-minutes').innerText = minutes;
+    document.getElementById('cd-secs').innerText = seconds;
+  }
+  setInterval(updateCountdown, 1000);
+  updateCountdown();
+
+  // --- 5. MEMORY OF THE DAY ---
+  function setMemoryOfTheDay() {
+    const allImgs = document.querySelectorAll('.gallery-media img');
+    if(allImgs.length === 0) return;
+    
+    const randomIndex = Math.floor(Math.random() * allImgs.length);
+    const randomImg = allImgs[randomIndex];
+    
+    document.getElementById('motdImage').src = randomImg.src;
+    
+    // Ambil judul dari parent card
+    const card = randomImg.closest('.gallery-card');
+    if(card) {
+      document.getElementById('motdTitle').innerText = card.querySelector('.gallery-title').innerText;
+      document.getElementById('motdDesc').innerText = card.querySelector('.gallery-desc').innerText;
+    }
+  }
+
+  // --- 6. SEARCH BAR ---
+  document.getElementById('searchInput').addEventListener('keyup', function() {
+    const filter = this.value.toLowerCase();
+    const cards = document.querySelectorAll('.gallery-card');
+    const groups = document.querySelectorAll('.category-group');
+
+    cards.forEach(card => {
+      const title = card.querySelector('.gallery-title').innerText.toLowerCase();
+      const desc = card.querySelector('.gallery-desc').innerText.toLowerCase();
+      
+      if (title.includes(filter) || desc.includes(filter)) {
+        card.style.display = 'flex';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    // Sembunyikan grup jika semua kartu di dalamnya kosong
+    groups.forEach(group => {
+      const visibleCards = group.querySelectorAll('.gallery-card[style="display: flex;"]');
+      if (filter !== '' && visibleCards.length === 0) {
+        group.style.display = 'none';
+      } else {
+        group.style.display = 'block';
+      }
+    });
+  });
+
+  // Inisialisasi awal
+  document.addEventListener('DOMContentLoaded', () => {
+    lucide.createIcons();
+    setMemoryOfTheDay();
+    
+    // Scroll to Top Logic
+    const scrollTopBtn = document.getElementById('scrollTopBtn');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 300) scrollTopBtn.classList.add('show');
+      else scrollTopBtn.classList.remove('show');
+    });
+    scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  });
+</script>
+
+<!-- JS Modules -->
+<script src="js/supabase-config.js"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/gallery.js"></script>
+<script src="js/guestbook.js"></script>
+<script src="js/memory-wall.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
